@@ -40,12 +40,12 @@ import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import appletConfig from '../../firebase-applet-config.json';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || appletConfig?.apiKey || 'AIzaSyAa_RQue1ST_PB2hehM-Cy3q4QGg5C4A7o',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || appletConfig?.authDomain || 'powerful-rock-8pp0d.firebaseapp.com',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || appletConfig?.projectId || 'powerful-rock-8pp0d',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || appletConfig?.storageBucket || 'powerful-rock-8pp0d.firebasestorage.app',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || appletConfig?.messagingSenderId || '938492421110',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || appletConfig?.appId || '1:938492421110:web:16f05282a0435d31f3ddd7',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || appletConfig?.apiKey || 'AIzaSyBIDKMumeNKM-gjNWSIcCauWxhSQLh6GF0',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || appletConfig?.authDomain || 'golden-passkey-459409-s3.firebaseapp.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || appletConfig?.projectId || 'golden-passkey-459409-s3',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || appletConfig?.storageBucket || 'golden-passkey-459409-s3.firebasestorage.app',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || appletConfig?.messagingSenderId || '130542860507',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || appletConfig?.appId || '1:130542860507:web:9daa605f2af195371f74fe',
 };
 
 export const isFirebaseConfigured = Boolean(

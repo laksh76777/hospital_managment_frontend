@@ -98,13 +98,28 @@ export const SignIn = () => {
   };
 
   // Quick Demo account selector for instant exploration
-  const handleQuickDemo = async (roleName, demoEmail) => {
+  const handleQuickDemo = async (roleName) => {
     setIsLoading(true);
+    setServerError('');
     try {
-      await setDemoRole(roleName);
-      redirectByRole(roleName);
+      if (roleName === 'admin') {
+        const result = await login('abc@gmail.com', '123456');
+        redirectByRole(result?.profile?.role || 'admin');
+      } else if (roleName === 'patient') {
+        const result = await login('abcd@gmail.com', '123456');
+        redirectByRole(result?.profile?.role || 'patient');
+      } else {
+        await setDemoRole(roleName);
+        redirectByRole(roleName);
+      }
     } catch (err) {
-      console.error('Demo switch failed:', err);
+      console.warn('Quick login note:', err.message);
+      try {
+        await setDemoRole(roleName);
+        redirectByRole(roleName);
+      } catch (fallbackErr) {
+        setServerError(err.message || 'Login failed. Please check credentials.');
+      }
     } finally {
       setIsLoading(false);
     }
