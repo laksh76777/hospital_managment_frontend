@@ -2,6 +2,10 @@
 
 The frontend for **Sanjeevani Super-Speciality Hospital & Research Institute**, built with **React 19**, **Vite 6**, and **Tailwind CSS v4**.
 
+frontend repo : https://github.com/laksh76777/hospital_managment_frontend.git 
+
+backend repo : https://github.com/laksh76777/hospital_managment_backend.git
+
 ---
 
 ## 🎨 Tech Stack & Libraries
