@@ -258,7 +258,16 @@ export default function LandingPage() {
             </nav>
 
             {/* User Auth Buttons */}
-            <div className="hidden sm:flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2.5">
+              <Link
+                to="/admin/dashboard"
+                id="navbar-admin-portal-link"
+                className="px-3 py-2 text-xs font-semibold text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-xl transition-all flex items-center gap-1.5 border border-slate-200"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Admin Portal</span>
+              </Link>
+
               {isAuthenticated ? (
                 <div className="flex items-center gap-3">
                   <div className="text-right">
@@ -278,14 +287,14 @@ export default function LandingPage() {
                   <button
                     id="signin-btn"
                     onClick={() => navigate('/signin')}
-                    className="px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-xl transition-all cursor-pointer"
+                    className="px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-xl transition-all cursor-pointer"
                   >
                     Sign In
                   </button>
                   <button
                     id="signup-btn"
                     onClick={() => navigate('/signup')}
-                    className="px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-sm hover:shadow shadow-emerald-700/20 transition-all cursor-pointer"
+                    className="px-4 py-2 text-xs sm:text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-sm hover:shadow shadow-emerald-700/20 transition-all cursor-pointer"
                   >
                     Patient Register
                   </button>

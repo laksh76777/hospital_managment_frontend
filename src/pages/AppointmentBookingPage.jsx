@@ -6,6 +6,7 @@ import { bookAppointment, getBookedSlots } from '../api/appointmentApi';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { format, addDays, startOfDay } from 'date-fns';
+import PatientLayout from '../components/layout/PatientLayout';
 
 export default function AppointmentBookingPage() {
   const navigate = useNavigate();
@@ -174,11 +175,11 @@ export default function AppointmentBookingPage() {
   };
 
   return (
-    <div id="booking-slots-page" className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-teal-600 hover:text-teal-700 font-medium mb-6">
-          <ArrowLeft className="w-4 h-4" /> Back to Hospital Home
-        </Link>
+    <PatientLayout
+      title="Book Outpatient Consultation"
+      breadcrumbs={[{ label: 'Book Appointment' }]}
+    >
+      <div id="booking-slots-page" className="p-4 sm:p-8 max-w-3xl mx-auto">
 
         {submittedAppointment ? (
           <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm text-center space-y-4 animate-in fade-in">
@@ -398,8 +399,8 @@ export default function AppointmentBookingPage() {
 
               <button
                 type="submit"
-                disabled={loading || availableSlots.length === 0}
-                className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading || openSlots.length === 0}
+                className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl transition shadow-md shadow-emerald-700/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {loading ? 'Reserving Slot...' : `Confirm & Book Appointment (₹${selectedDoctor?.fees || 800})`}
               </button>
@@ -407,6 +408,6 @@ export default function AppointmentBookingPage() {
           </div>
         )}
       </div>
-    </div>
+    </PatientLayout>
   );
 }

@@ -6,7 +6,7 @@ import AppointmentStatusBadge from '../../components/AppointmentStatusBadge';
 import Loader from '../../components/Loader';
 import EmptyState from '../../components/EmptyState';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import Navbar from '../../components/Navbar';
+import PatientLayout from '../../components/layout/PatientLayout';
 import toast from 'react-hot-toast';
 import { format, isPast, startOfDay } from 'date-fns';
 import {
@@ -15,7 +15,6 @@ import {
   Stethoscope,
   XCircle,
   AlertCircle,
-  ArrowLeft,
   Building2,
   Phone,
   Mail,
@@ -53,12 +52,10 @@ export default function MyAppointments() {
     loadAppointments();
   }, []);
 
-  // Open custom in-app cancellation modal
   const handleOpenCancelDialog = (appointment) => {
     setCancelModalData(appointment);
   };
 
-  // Confirm cancel action
   const handleConfirmCancel = async () => {
     if (!cancelModalData) return;
     setCancelLoading(true);
@@ -77,93 +74,73 @@ export default function MyAppointments() {
   };
 
   return (
-    <div id="my-appointments-page" className="min-h-screen bg-slate-50 text-slate-800">
-      <Navbar />
-
-      {/* Indian Hospital Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 via-teal-900 to-indigo-950 text-white text-xs py-2 px-4 border-b border-emerald-700/50">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1">
-          <div className="flex items-center gap-2">
-            <Building2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="font-semibold tracking-wide">Sanjeevani Multi-Speciality Hospital & Research Institute</span>
-            <span className="hidden md:inline text-emerald-300/80">• Sector 62, Institutional Area, Noida, Delhi NCR - 201309</span>
-          </div>
-          <div className="text-emerald-300 font-mono text-[11px]">
-            IST (UTC+5:30) • Patient Appointments Desk
-          </div>
-        </div>
-      </div>
-
-      {/* Top Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/patient/doctors"
-              className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
-              title="Back to doctor directory"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">Patient Dashboard</span>
-              <h1 className="text-xl font-bold text-slate-900">My Consultation Schedule</h1>
-            </div>
+    <PatientLayout
+      title="My Consultation Schedule"
+      breadcrumbs={[{ label: 'My Appointments' }]}
+    >
+      <div id="my-appointments-content" className="p-4 sm:p-8 space-y-6 max-w-5xl mx-auto">
+        {/* Top Header Card */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div>
+            <h2 className="text-base font-bold text-slate-900">
+              Outpatient Consultations ({appointments.length})
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Consultations scheduled for <span className="font-bold text-slate-800">{userProfile?.name || 'you'}</span>
+            </p>
           </div>
 
           <Link
-            to="/patient/doctors"
+            to="/appointments/book"
             id="btn-book-another-doctor"
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition shadow-xs self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
             <span>Book New Appointment</span>
           </Link>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <p className="text-sm text-slate-600">
-            Consultations booked for <span className="font-bold text-slate-900">{userProfile?.name || 'you'}</span>
-          </p>
-          <span className="text-xs font-medium text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200">
-            Total Records: {appointments.length}
-          </span>
-        </div>
-
+        {/* Content */}
         {loading ? (
-          <div className="p-12 bg-white rounded-2xl border border-slate-200 shadow-xs">
-            <Loader message="Retrieving medical appointment records..." />
+          <div className="bg-white p-12 rounded-2xl border border-slate-200 shadow-xs flex justify-center">
+            <Loader message="Loading your consultation records..." />
           </div>
         ) : appointments.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 max-w-xl mx-auto">
-            <EmptyState
-              icon={Calendar}
-              title="No Scheduled Consultations"
-              description="You currently have no active appointments reserved with Sanjeevani hospital doctors."
-              actionText="Browse Specialist Doctors"
-              onAction={() => navigate('/patient/doctors')}
-            />
+          <div className="bg-white p-12 rounded-2xl border border-slate-200 shadow-xs text-center space-y-4">
+            <div className="w-14 h-14 bg-emerald-50 text-emerald-700 rounded-2xl flex items-center justify-center mx-auto">
+              <Calendar className="w-7 h-7" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900">No Scheduled Consultations</h3>
+              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                You currently have no active appointments reserved with Sanjeevani hospital doctors.
+              </p>
+            </div>
+            <Link
+              to="/patient/doctors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-xs"
+            >
+              <Stethoscope className="w-4 h-4" />
+              <span>Browse Specialist Doctors</span>
+            </Link>
           </div>
         ) : (
           <div className="space-y-4">
             {appointments.map((appt) => {
-              const apptId = appt._id || appt.id;
-              const doctor = appt.doctorRef || {};
-              const doctorName = doctor.name || appt.doctorName || 'Specialist Doctor';
-              const specialization = doctor.specialization || 'General Consultation';
-              const department = doctor.department || 'Clinical OPD';
-              const fee = doctor.fees || 500;
+              const doc = appt.doctorRef || {};
+              const docName = doc.name || appt.doctorName || 'Doctor';
+              const specialization = doc.specialization || 'Super-Specialist';
+              const dept = doc.department || 'Hospital OPD';
 
-              // Date formatting with date-fns
-              let formattedDate = 'Scheduled Date';
+              let formattedDate = 'N/A';
+              let isAppointmentPast = false;
               try {
                 if (appt.appointmentDate) {
-                  formattedDate = format(new Date(appt.appointmentDate), 'EEEE, MMMM d, yyyy');
+                  const d = new Date(appt.appointmentDate);
+                  formattedDate = format(d, 'EEEE, MMMM d, yyyy');
+                  isAppointmentPast = isPast(d) && !appt.appointmentDate.startsWith(format(new Date(), 'yyyy-MM-dd'));
                 } else if (appt.day) {
-                  formattedDate = `Consultation Day: ${appt.day}`;
+                  formattedDate = appt.day;
                 }
               } catch (e) {
                 formattedDate = String(appt.appointmentDate || appt.day);
@@ -173,96 +150,67 @@ export default function MyAppointments() {
 
               return (
                 <div
-                  key={apptId}
-                  id={`appointment-card-${apptId}`}
-                  className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-indigo-200 transition-all space-y-4"
+                  key={appt._id || appt.id}
+                  className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:border-emerald-300 transition-all p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    {/* Doctor Details */}
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-lg border border-indigo-200 shrink-0">
-                        {doctorName.replace('Dr.', '').trim().charAt(0)}
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-bold text-slate-900 text-base">{doctorName}</h3>
-                          <span className="text-xs text-indigo-700 font-semibold px-2 py-0.5 rounded-md bg-indigo-50 border border-indigo-100">
-                            {specialization}
-                          </span>
-                        </div>
-                        <div className="text-xs text-slate-500 flex items-center gap-2">
-                          <span>{department}</span>
-                          <span>•</span>
-                          <span>Sanjeevani Multi-Speciality Hospital</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Status Badge */}
-                    <div>
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <h3 className="text-base font-bold text-slate-900">{docName}</h3>
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        {specialization}
+                      </span>
                       <AppointmentStatusBadge status={appt.status} />
                     </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 text-xs text-slate-600">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span className="font-semibold text-slate-800">{formattedDate}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span className="font-mono text-emerald-700 font-bold">{appt.time} (IST)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
+                        <span>{dept}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                        <span>Hospital OPD Desk: Ext 4050</span>
+                      </div>
+                    </div>
+
+                    {appt.status === 'pending' && (
+                      <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>Awaiting administrator confirmation. You will receive an SMS upon approval.</span>
+                      </div>
+                    )}
+
+                    {appt.notes && (
+                      <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs text-slate-600 flex items-start gap-2">
+                        <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                        <span>Clinical Notes: "{appt.notes}"</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Date, Time & Fee Strip */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs">
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <Calendar className="w-4 h-4 text-indigo-600 shrink-0" />
-                      <div>
-                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Consultation Date</span>
-                        <span className="font-semibold text-slate-900">{formattedDate}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <Clock className="w-4 h-4 text-indigo-600 shrink-0" />
-                      <div>
-                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Scheduled Slot</span>
-                        <span className="font-semibold text-slate-900">{appt.time} (IST)</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <div className="w-4 h-4 text-emerald-600 font-bold flex items-center justify-center shrink-0">₹</div>
-                      <div>
-                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Consultation Fee</span>
-                        <span className="font-bold text-slate-900">₹{fee}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Clinical Reason / Notes if provided */}
-                  {appt.notes && (
-                    <div className="p-3 bg-indigo-50/40 rounded-xl border border-indigo-100 text-xs text-slate-600 flex items-start gap-2">
-                      <FileText className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-semibold text-slate-800">Reason / Clinical Symptoms:</span>
-                        <p className="mt-0.5 text-slate-700 italic">"{appt.notes}"</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Actions Bar */}
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                    <div className="text-[11px] text-slate-400">
-                      Booking ID: <span className="font-mono text-slate-600">{apptId}</span>
-                    </div>
-
-                    {canCancel ? (
+                  <div className="shrink-0 flex items-center gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
+                    {canCancel && (
                       <button
-                        id={`btn-cancel-${apptId}`}
-                        type="button"
                         onClick={() => handleOpenCancelDialog(appt)}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors"
+                        className="px-4 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl border border-rose-200 transition cursor-pointer"
                       >
-                        <XCircle className="w-3.5 h-3.5" />
-                        <span>Cancel Consultation</span>
+                        Cancel Consultation
                       </button>
-                    ) : (
-                      <span className="text-xs text-slate-400 italic">
-                        {appt.status === 'completed'
-                          ? 'Consultation Completed'
-                          : 'Consultation Cancelled'}
+                    )}
+                    {appt.status === 'cancelled' && (
+                      <span className="text-xs font-medium text-slate-400">Cancelled</span>
+                    )}
+                    {appt.status === 'completed' && (
+                      <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-200">
+                        Consultation Completed
                       </span>
                     )}
                   </div>
@@ -271,7 +219,7 @@ export default function MyAppointments() {
             })}
           </div>
         )}
-      </main>
+      </div>
 
       {/* In-App Cancellation Confirmation Dialog */}
       <ConfirmDialog
@@ -295,6 +243,6 @@ export default function MyAppointments() {
         onConfirm={handleConfirmCancel}
         onClose={() => setCancelModalData(null)}
       />
-    </div>
+    </PatientLayout>
   );
 }

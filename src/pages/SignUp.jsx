@@ -1,11 +1,26 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Activity, User, Mail, Lock, Phone, CheckCircle2, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
+import {
+  Building2,
+  User,
+  Mail,
+  Lock,
+  Phone,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  ArrowRight,
+  ArrowLeft,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export const SignUp = () => {
   const navigate = useNavigate();
-  const { signup, loginWithGoogle, isFirebaseConfigured } = useAuth();
+  const { signup } = useAuth();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -15,6 +30,7 @@ export const SignUp = () => {
     confirmPassword: '',
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -71,294 +87,246 @@ export const SignUp = () => {
         formData.password,
         formData.phone.trim()
       );
-      // Registration successful -> Navigate to patient dashboard
+      toast.success('Patient account created successfully! Welcome to Sanjeevani Care.');
       navigate('/patient/dashboard');
     } catch (err) {
       console.error('Sign up submission failed:', err);
-      setServerError(err.message || 'Failed to create an account. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSignUp = async () => {
-    setServerError('');
-    setIsLoading(true);
-    try {
-      await loginWithGoogle();
-      navigate('/patient/dashboard');
-    } catch (err) {
-      console.error('Google sign up failed:', err);
-      setServerError(err.message || 'Failed to sign up with Google. Please try again.');
+      setServerError(err.message || 'Failed to create account. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div id="signup-page" className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      {/* Header / Logo */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link to="/" className="inline-flex items-center space-x-2.5 group">
-          <div className="w-11 h-11 bg-teal-600 rounded-xl flex items-center justify-center text-white shadow-sm group-hover:bg-teal-700 transition">
-            <Activity className="w-6 h-6" />
-          </div>
-          <span className="text-2xl font-extrabold tracking-tight text-slate-900">
-            Health<span className="text-teal-600">Desk</span>
-          </span>
-        </Link>
-        <h2 className="mt-6 text-3xl font-bold tracking-tight text-slate-900">
-          Create patient account
-        </h2>
-        <p className="mt-2 text-sm text-slate-600">
-          Already registered?{' '}
-          <Link to="/signin" className="font-semibold text-teal-600 hover:text-teal-700 underline underline-offset-4">
-            Sign in to your account
+    <div id="signup-page" className="min-h-screen bg-slate-50 flex flex-col justify-between font-sans">
+      {/* Top Hospital Banner */}
+      <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 text-white text-xs py-2 px-4 border-b border-emerald-800/40">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-90">
+            <Building2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="font-bold text-xs sm:text-sm">
+              Sanjeevani Super-Speciality Hospital & Research Institute
+            </span>
           </Link>
-        </p>
+          <span className="hidden sm:inline text-emerald-300 font-mono text-[11px]">
+            New Patient Registration
+          </span>
+        </div>
       </div>
 
-      {/* Main Card */}
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <div className="bg-white py-8 px-6 shadow-sm border border-slate-200 rounded-2xl sm:px-10">
-          {/* Google Sign Up Button */}
-          <div className="mb-6">
-            <button
-              type="button"
-              id="signup-google-btn"
-              onClick={handleGoogleSignUp}
-              disabled={isLoading}
-              className="w-full flex items-center justify-center space-x-3 py-2.5 px-4 border border-slate-200 rounded-xl shadow-xs text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-teal-500 disabled:opacity-60 transition"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                />
-              </svg>
-              <span>Continue with Google</span>
-            </button>
+      {/* Main Container */}
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        <div className="max-w-4xl w-full bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+          {/* Left Hero Panel */}
+          <div className="bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 p-8 sm:p-10 text-white flex flex-col justify-between relative overflow-hidden">
+            <div className="relative z-10 space-y-6">
+              <Link to="/" className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-200 hover:text-white transition">
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back to Hospital Homepage</span>
+              </Link>
 
-            <div className="relative my-5">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-slate-400 font-medium">Or register with email</span>
-              </div>
-            </div>
-          </div>
-          {/* Status banner if Firebase is awaiting live credentials */}
-          {!isFirebaseConfigured && (
-            <div className="mb-6 p-3.5 bg-amber-50/80 border border-amber-200/80 rounded-xl flex items-start space-x-2.5 text-xs text-amber-800">
-              <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold">Firebase Configuration Note</p>
-                <p className="text-amber-700 mt-0.5">
-                  App is ready for your Firebase credentials from <code className="bg-amber-100 px-1 py-0.5 rounded">.env.example</code>. Test signup will work with local database registration immediately!
+              <div className="space-y-2">
+                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-emerald-300 border border-white/10">
+                  <Building2 className="w-7 h-7" />
+                </div>
+                <h2 className="text-2xl font-black tracking-tight leading-snug">
+                  Create Your Patient Health Account
+                </h2>
+                <p className="text-xs text-emerald-100/80 leading-relaxed">
+                  Join Sanjeevani Care to book doctor visits, track consultation passes, and view medical notes seamlessly.
                 </p>
               </div>
-            </div>
-          )}
 
-          {/* Server / API error alert */}
-          {serverError && (
-            <div id="signup-error-alert" className="mb-6 p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start space-x-2.5 text-rose-800 text-sm">
-              <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 font-medium">{serverError}</div>
-            </div>
-          )}
-
-          <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-            {/* Full Name */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Full Name
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <User className="w-4 h-4" />
+              {/* Benefits */}
+              <div className="space-y-3 pt-2 text-xs text-emerald-200/90">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Instant OPD online appointment confirmation</span>
                 </div>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  placeholder="Jane Doe"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-2.5 bg-white border ${
-                    formErrors.name ? 'border-rose-400 focus:ring-rose-500 focus:border-rose-500' : 'border-slate-200 focus:ring-teal-500 focus:border-teal-500'
-                  } rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition`}
-                />
-              </div>
-              {formErrors.name && (
-                <p className="mt-1.5 text-xs text-rose-600 font-medium">{formErrors.name}</p>
-              )}
-            </div>
-
-            {/* Mobile Contact Number */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Mobile Number <span className="text-teal-600 font-normal">(for hospital appointments)</span>
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Phone className="w-4 h-4" />
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>SMS consultation reminders on your mobile number</span>
                 </div>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  required
-                  placeholder="+91 98765 43210"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-2.5 bg-white border ${
-                    formErrors.phone ? 'border-rose-400 focus:ring-rose-500 focus:border-rose-500' : 'border-slate-200 focus:ring-teal-500 focus:border-teal-500'
-                  } rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition`}
-                />
-              </div>
-              {formErrors.phone && (
-                <p className="mt-1.5 text-xs text-rose-600 font-medium">{formErrors.phone}</p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="w-4 h-4" />
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Access to 50+ NABH certified super-specialists</span>
                 </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="jane.doe@example.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-2.5 bg-white border ${
-                    formErrors.email ? 'border-rose-400 focus:ring-rose-500 focus:border-rose-500' : 'border-slate-200 focus:ring-teal-500 focus:border-teal-500'
-                  } rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition`}
-                />
-              </div>
-              {formErrors.email && (
-                <p className="mt-1.5 text-xs text-rose-600 font-medium">{formErrors.email}</p>
-              )}
-            </div>
-
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-4 h-4" />
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Zero advance payment required to book</span>
                 </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  placeholder="At least 6 characters"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-2.5 bg-white border ${
-                    formErrors.password ? 'border-rose-400 focus:ring-rose-500 focus:border-rose-500' : 'border-slate-200 focus:ring-teal-500 focus:border-teal-500'
-                  } rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition`}
-                />
               </div>
-              {formErrors.password && (
-                <p className="mt-1.5 text-xs text-rose-600 font-medium">{formErrors.password}</p>
-              )}
             </div>
 
-            {/* Confirm Password */}
+            <div className="relative z-10 mt-8 pt-6 border-t border-white/10 text-xs text-emerald-300/80">
+              Already registered at Sanjeevani?{' '}
+              <Link to="/signin" className="font-bold text-white hover:underline">
+                Sign In to Portal &rarr;
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Form Panel */}
+          <div className="p-8 sm:p-10 flex flex-col justify-between">
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-4 h-4" />
-                </div>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  placeholder="Re-type your password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-2.5 bg-white border ${
-                    formErrors.confirmPassword ? 'border-rose-400 focus:ring-rose-500 focus:border-rose-500' : 'border-slate-200 focus:ring-teal-500 focus:border-teal-500'
-                  } rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition`}
-                />
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-slate-900">Patient Registration</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Fill in your details below. Your phone number is strictly used for hospital appointment coordination.
+                </p>
               </div>
-              {formErrors.confirmPassword && (
-                <p className="mt-1.5 text-xs text-rose-600 font-medium">{formErrors.confirmPassword}</p>
+
+              {serverError && (
+                <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2 text-rose-800 text-xs">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  <span>{serverError}</span>
+                </div>
               )}
+
+              <form onSubmit={handleSubmit} className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                    Full Legal Name
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <User className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="e.g. Laksh Suthar"
+                      className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
+                    />
+                  </div>
+                  {formErrors.name && (
+                    <p className="text-[11px] text-rose-600 mt-0.5">{formErrors.name}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                    Mobile Number (For Hospital SMS)
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <Phone className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="+91 98765 43210"
+                      className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-mono focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
+                    />
+                  </div>
+                  {formErrors.phone && (
+                    <p className="text-[11px] text-rose-600 mt-0.5">{formErrors.phone}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="patient@example.com"
+                      className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
+                    />
+                  </div>
+                  {formErrors.email && (
+                    <p className="text-[11px] text-rose-600 mt-0.5">{formErrors.email}</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="At least 6 chars"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
+                      />
+                    </div>
+                    {formErrors.password && (
+                      <p className="text-[11px] text-rose-600 mt-0.5">{formErrors.password}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                      Confirm
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        placeholder="Re-enter password"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
+                      />
+                    </div>
+                    {formErrors.confirmPassword && (
+                      <p className="text-[11px] text-rose-600 mt-0.5">{formErrors.confirmPassword}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-slate-500 hover:text-slate-700 flex items-center gap-1 cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    <span>{showPassword ? 'Hide password' : 'Show password'}</span>
+                  </button>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-700/20 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 mt-2"
+                >
+                  {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>{isLoading ? 'Creating Account...' : 'Complete Patient Registration'}</span>
+                </button>
+              </form>
             </div>
 
-            {/* Role indicator */}
-            <div className="pt-1 text-xs text-slate-500 flex items-center space-x-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" />
-              <span>Standard registrations are enrolled with the <strong>Patient</strong> role.</span>
+            <div className="pt-4 border-t border-slate-100 text-center text-xs text-slate-500 mt-4">
+              Already have an account?{' '}
+              <Link to="/signin" className="font-bold text-emerald-700 hover:underline">
+                Sign In
+              </Link>
             </div>
-
-            {/* Submit Button */}
-            <div className="pt-2">
-              <button
-                id="signup-submit-btn"
-                type="submit"
-                disabled={isLoading}
-                className="w-full flex items-center justify-center space-x-2 py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-60 transition"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Creating Account...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Create Account</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-
-          {/* Privacy Note */}
-          <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-500 leading-relaxed">
-              By creating an account you agree to HealthDesk's Medical Terms of Service and HIPAA Privacy Policy.
-            </p>
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="py-3 text-center text-[11px] text-slate-400 border-t border-slate-200 bg-white">
+        © 2026 Sanjeevani Super-Speciality Hospital & Research Institute. All rights reserved.
+      </footer>
     </div>
   );
 };
-
 export default SignUp;
