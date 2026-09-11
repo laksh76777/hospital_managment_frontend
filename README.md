@@ -135,15 +135,3 @@ npm run preview
 ```
 
 ---
-
-## ⚙️ Environment Variables (`.env`)
-
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_FIREBASE_API_KEY=AIzaSyAa_RQue1ST_PB2hehM-Cy3q4QGg5C4A7o
-VITE_FIREBASE_AUTH_DOMAIN=powerful-rock-8pp0d.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=powerful-rock-8pp0d
-VITE_FIREBASE_STORAGE_BUCKET=powerful-rock-8pp0d.firebasestorage.app
-VITE_FIREBASE_MESSAGING_SENDER_ID=938492421110
-VITE_FIREBASE_APP_ID=1:938492421110:web:16f05282a0435d31f3ddd7
-```
