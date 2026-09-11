@@ -17,6 +17,7 @@ import {
   User,
   Plus,
 } from 'lucide-react';
+import PatientChatbot from '../patient/PatientChatbot';
 
 export default function PatientLayout({ children, title, subtitle, breadcrumbs = [] }) {
   const { currentUser, userProfile, logout } = useAuth();
@@ -321,6 +322,8 @@ export default function PatientLayout({ children, title, subtitle, breadcrumbs =
           </main>
         </div>
       </div>
+      {/* Patient AI Doctor & OPD Assistant Chatbot */}
+      <PatientChatbot />
     </div>
   );
 }
