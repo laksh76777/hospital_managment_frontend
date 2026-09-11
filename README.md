@@ -1,237 +1,149 @@
-# HealthDesk — Hospital Outpatient & Appointment Management System
+# Sanjeevani Hospital Management — Frontend Client
 
-A production-ready Hospital OPD & Consultation Management Platform localized for **Sanjeevani Multi-Speciality Hospital & Research Institute** (Sector 62, Institutional Area, Noida, Delhi NCR). HealthDesk provides end-to-end appointment scheduling, physician roster management, field-level validation, and database-level concurrency protection against double bookings.
+The frontend for **Sanjeevani Super-Speciality Hospital & Research Institute**, built with **React 19**, **Vite 6**, and **Tailwind CSS v4**.
 
 ---
 
-## 🏗️ Architecture & Data Flow
+## 🎨 Tech Stack & Libraries
 
-```text
-┌─────────────────────────────────────────────────────────────────────────┐
-│                     HealthDesk Frontend (React + Vite)                  │
-│   ┌───────────────────────┬──────────────────────┬──────────────────┐   │
-│   │   Patient Portal      │    Doctor Portal     │   Admin Terminal │   │
-│   │ • Search Specialists  │  • OPD Roster        │ • Faculty Roster │   │
-│   │ • Book Slots (IST)    │  • Weekly Timetable  │ • Appt Register  │   │
-│   │ • My Consultations    │  • Clinical Notes    │ • Real-time Stats│   │
-│   └───────────┬───────────┴──────────┬───────────┴─────────┬────────┘   │
-└───────────────┼──────────────────────┼─────────────────────┼────────────┘
-                │                      │                     │
-                ▼                      ▼                     ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                      Express API Gateway (Port 5000)                    │
-│   ┌─────────────────────────────────────────────────────────────────┐   │
-│   │  Middleware Layer:                                              │   │
-│   │  • authMiddleware (Firebase ID Token verification & claims)     │   │
-│   │  • checkRole ('patient', 'doctor', 'admin')                     │   │
-│   │  • validate (Zod field-level validation schemas)                │   │
-│   │  • errorHandler (Centralized Mongoose, Zod & Firebase errors)   │   │
-│   └──────────────────────────────┬──────────────────────────────────┘   │
-└──────────────────────────────────┼──────────────────────────────────────┘
-                                   │
-         ┌─────────────────────────┴─────────────────────────┐
-         ▼                                                   ▼
-┌─────────────────────────────────┐         ┌─────────────────────────────────┐
-│        MongoDB Database         │         │      Firebase Cloud Platform    │
-│  • Unique Compound Index:       │         │  • Firebase Authentication      │
-│    { doctorRef, date, time }    │         │    (RBAC custom claims & tokens)│
-│  • Doctor Weekly Templates      │         │  • Cloud Firestore              │
-│  • Clinical OPD Consultations   │         │    (Realtime patient sync)      │
-│  • User Profile Documents       │         │                                 │
-└─────────────────────────────────┘         └─────────────────────────────────┘
+- **Core:** React 19, React Router DOM 7
+- **Bundler & Dev Server:** Vite 6
+- **Styling:** Tailwind CSS v4 (`@tailwindcss/vite`)
+- **Icons:** Lucide React
+- **Date & Calendar:** date-fns (Indian Standard Time formatting)
+- **Feedback & Notifications:** React Hot Toast
+- **HTTP Client:** Axios with auto-bearer token injection
+- **Authentication:** Firebase Client SDK v11 + MongoDB native auth fallback
+
+---
+
+## 📁 Source Code Structure
+
+```
+frontend/
+├── src/
+│   ├── api/                      # Axios service modules
+│   │   ├── axios.js              # Centralized Axios instance with interceptors
+│   │   ├── authApi.js            # Register, Login, Current User profile
+│   │   ├── doctorApi.js          # Doctor roster queries & Admin CRUD
+│   │   ├── appointmentApi.js     # Booking, cancellation, status updates & slot queries
+│   │   └── client.js             # Server health status check
+│   │
+│   ├── components/               # Reusable UI components
+│   │   ├── Navbar.jsx            # Universal sticky navbar with user badge & dropdown
+│   │   ├── Loader.jsx            # Animated loading spinner with custom messaging
+│   │   ├── EmptyState.jsx        # Empty state display with action triggers
+│   │   ├── ConfirmDialog.jsx     # Modal confirmation dialog
+│   │   ├── ProtectedRoute.jsx    # Role-based route guard ('patient' | 'doctor' | 'admin')
+│   │   └── AppointmentStatusBadge.jsx # Color-coded status badge
+│   │
+│   ├── context/                  # React Contexts
+│   │   └── AuthContext.jsx       # Auth state management, token handling & fallback logic
+│   │
+│   ├── firebase/                 # Firebase configuration
+│   │   ├── config.js             # Client Firebase app initialization
+│   │   └── firestoreService.js   # Firestore listeners & appointment sync
+│   │
+│   ├── pages/                    # Application Views
+│   │   ├── LandingPage.jsx       # Public hospital portal with live OPD desk & emergency bar
+│   │   ├── SignIn.jsx            # Login page with 1-click Admin & Patient demo cards
+│   │   ├── SignUp.jsx            # Patient register with 10-digit mobile number validation
+│   │   ├── AdminDashboard.jsx    # Admin overview with Pending Approvals action queue
+│   │   ├── PatientDashboard.jsx  # Patient portal with appointments & profile phone display
+│   │   ├── AppointmentBookingPage.jsx # Slot selection with dynamic conflict disabling
+│   │   ├── admin/
+│   │   │   ├── AllAppointments.jsx # Full registry with 1-click Confirm/Cancel actions
+│   │   │   └── ManageDoctors.jsx   # Faculty management, onboarding & availability editor
+│   │   └── patient/
+│   │       ├── DoctorList.jsx    # Filterable doctor directory with search & department tabs
+│   │       ├── DoctorProfile.jsx # Doctor detail page with weekly slot calendar
+│   │       └── MyAppointments.jsx # Patient's booked appointments with status tags
+│   │
+│   ├── App.jsx                   # Route declarations & route protection
+│   ├── main.jsx                  # React DOM root entry
+│   └── index.css                 # Tailwind CSS v4 theme and utility rules
+│
+├── .env                          # Firebase keys & API endpoint
+├── index.html                    # HTML5 application shell
+├── package.json                  # Scripts and dependencies
+└── vite.config.js                # Vite configuration with proxy to port 5000
 ```
 
 ---
 
-## 🚀 Key Features
+## 🌐 Routes & Portal Map
 
-1. **Role-Based Access Control (RBAC):**
-   - **Patients:** Browse hospital departments, search doctors by specialization, view real-time available time slots, book appointments, and cancel bookings with in-app confirmation.
-   - **Doctors:** Access daily OPD appointment roster, update consultation statuses (`Pending` &rarr; `Confirmed` &rarr; `Completed`), record clinical examination notes, and view their weekly OPD timetable.
-   - **Admins:** Manage medical faculty profiles, configure weekly availability templates, monitor live hospital stats, and inspect the centralized consultation register with multi-criteria filters.
-
-2. **DB-Level Concurrency & Date Safety:**
-   - Mongoose unique compound index (`{ doctorRef: 1, appointmentDate: 1, time: 1 }`) prevents double booking even under high concurrent load.
-   - Date validation compares incoming booking dates strictly against Indian Standard Time (IST) calendar dates to reject past bookings.
-   - Weekly template validation verifies that the booked date falls on an active weekday and time slot configured for that physician.
-
-3. **Field-Level Validation & Centralized Error Handling:**
-   - Strict Zod schemas on all mutating endpoints (`POST`, `PUT`, `PATCH`).
-   - Centralized `errorHandler` maps MongoDB `11000` duplicate key errors, Mongoose `ValidationError`, `CastError`, and Firebase `auth/` errors into structured, user-friendly responses.
-
-4. **Polished Hospital UI:**
-   - Reusable `Loader`, `EmptyState`, and `ConfirmDialog` components across all views.
-   - Double-submit prevention on all forms (`disabled={loading}`).
-   - Universal `Navbar` across Patient, Doctor, and Hospital Admin screens.
+| Path | Access | Description |
+| :--- | :--- | :--- |
+| `/` | Public | Sanjeevani Hospital Landing Page with 24/7 helpline, doctor preview, and department cards |
+| `/signin` | Public | Sign In with 1-click Quick Demo login buttons |
+| `/signup` | Public | New Patient Registration with 10-digit mobile number collection |
+| `/patient/doctors` | Public / Patient | Browse all hospital medical departments and specialist physicians |
+| `/patient/doctor/:id` | Public / Patient | Doctor profile, consultation fees, and weekly OPD timetable |
+| `/appointments/book` | Protected (Patient) | Select doctor, choose date, pick real-time open time slot, enter reason |
+| `/patient/dashboard` | Protected (Patient) | Patient dashboard with upcoming visits and profile details |
+| `/patient/my-appointments`| Protected (Patient) | Patient's personal consultation registry |
+| `/admin/dashboard` | Protected (Admin) | Admin Overview with live stats and **Pending Approvals Queue** |
+| `/admin/doctors` | Protected (Admin) | Onboard new doctors, assign department, configure weekly slots |
+| `/admin/appointments`| Protected (Admin) | Hospital-wide consultation records with **Admin Approval Actions** |
 
 ---
 
-## 🛠️ Tech Stack
+## 💡 Key Frontend Features
 
-- **Frontend:** React 18, Vite, Tailwind CSS, Lucide React, Date-fns, React Hot Toast
-- **Backend:** Node.js, Express 4, Mongoose 8, Zod, Morgan, Cors, Dotenv
-- **Authentication & Cloud:** Firebase Auth, Firebase Admin SDK, Cloud Firestore
-- **Database:** MongoDB (Local or MongoDB Atlas)
+### 1. Transparent Authentication Fallback
+When Firebase throws `auth/operation-not-allowed` (e.g. if Email/Password provider is not activated in the Firebase Console), [AuthContext.jsx](file:///c:/Users/Akshat/.gemini/antigravity/scratch/hostital-managment/frontend/src/context/AuthContext.jsx) automatically catches the error and executes registration directly against the backend `/api/auth/register` endpoint. The patient is authenticated seamlessly without seeing any error modal.
 
----
-
-## 📋 Prerequisites
-
-- **Node.js**: v18.0.0 or later
-- **npm**: v9.0.0 or later
-- **MongoDB**: Active local instance (`mongodb://127.0.0.1:27017`) or MongoDB Atlas URI
-- **Firebase Project**: Service account credentials or configured `.env` file
-
----
-
-## ⚙️ Environment Configuration
-
-### Client Configuration (`/client/.env`)
-```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-VITE_API_URL=http://localhost:5000/api
+### 2. 10-Digit Mobile Number Validation
+The registration form enforces valid 10-digit phone numbers:
+```javascript
+const cleanPhone = formData.phone.trim().replace(/\D/g, '');
+if (cleanPhone.length !== 10) {
+  toast.error('Please enter a valid 10-digit mobile contact number');
+  return;
+}
 ```
 
-### Server Configuration (`/server/.env`)
-```env
-PORT=5000
-NODE_ENV=development
-MONGO_URI=mongodb://127.0.0.1:27017/healthdesk
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_CLIENT_EMAIL=your_service_account_email
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
-ADMIN_EMAIL=admin@healthdesk.org
-ADMIN_PASSWORD=Admin@123456
-```
+### 3. Real-Time Slot Locking UI
+When a patient selects a date on [AppointmentBookingPage.jsx](file:///c:/Users/Akshat/.gemini/antigravity/scratch/hostital-managment/frontend/src/pages/AppointmentBookingPage.jsx) or [DoctorProfile.jsx](file:///c:/Users/Akshat/.gemini/antigravity/scratch/hostital-managment/frontend/src/pages/patient/DoctorProfile.jsx):
+- The client calls `GET /api/appointments/booked-slots?doctorId={id}&date={date}`.
+- Booked time slots are styled with a red border, marked as `"Reserved"`, and disabled (`disabled={isReserved}`).
+- Patients can only click available slots, eliminating double-booking attempts before submission.
+
+### 4. 1-Click Admin Approval Actions
+On [AllAppointments.jsx](file:///c:/Users/Akshat/.gemini/antigravity/scratch/hostital-managment/frontend/src/pages/admin/AllAppointments.jsx) and [AdminDashboard.jsx](file:///c:/Users/Akshat/.gemini/antigravity/scratch/hostital-managment/frontend/src/pages/AdminDashboard.jsx):
+- Pending appointments display green **Confirm** and red **Cancel** buttons.
+- Confirmed appointments display blue **Complete** and red **Cancel** buttons.
+- Clicking an action immediately updates the status via `updateAppointmentStatus(id, { status })` and shows instant toast feedback.
 
 ---
 
-## 📦 Setup & Installation
+## 🛠️ Scripts & Commands
 
-### 1. Install Dependencies
 ```bash
-# Install root/client dependencies
+# Install dependencies
 npm install
 
-# Install server dependencies
-cd server
-npm install
-cd ..
-```
-
-### 2. Database Seeding
-To populate Sanjeevani Hospital with 6 specialized physicians (Cardiology, Orthopaedics, Neurology, Paediatrics, Dermatology, General Medicine) and sample consultations:
-```bash
-cd server
-npm run seed
-# Or skip confirmation prompt:
-npm run seed:force
-```
-
-### 3. Provision Admin Account
-To create or update the executive hospital administrator:
-```bash
-cd server
-npm run create-admin
-```
-
----
-
-## 🏃 Running the Application
-
-### Option A: Running Development Servers
-```bash
-# Terminal 1 — Start the Backend API (Port 5000)
-cd server
+# Start Vite dev server on http://localhost:3000
 npm run dev
 
-# Terminal 2 — Start the Client UI (Port 3000)
-npm run dev
-```
-
-### Option B: Production Build
-```bash
+# Compile production bundle
 npm run build
-npm start
+
+# Preview production build locally
+npm run preview
 ```
 
 ---
 
-## 📂 Project Structure
+## ⚙️ Environment Variables (`.env`)
 
-```text
-├── client/
-│   ├── src/
-│   │   ├── api/                   # Axios / fetch API wrappers
-│   │   │   ├── appointmentApi.js  # Patient, Doctor & Admin booking APIs
-│   │   │   └── doctorApi.js       # Doctor search & roster management APIs
-│   │   ├── components/            # Reusable UI components
-│   │   │   ├── AppointmentStatusBadge.jsx
-│   │   │   ├── ConfirmDialog.jsx  # In-app accessible confirmation dialog
-│   │   │   ├── EmptyState.jsx     # Visual empty data display
-│   │   │   ├── Loader.jsx         # Uniform animated loading state
-│   │   │   ├── Navbar.jsx         # Responsive global hospital header
-│   │   │   └── ProtectedRoute.jsx # RBAC route guard
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx    # Auth state & Firebase session sync
-│   │   ├── pages/
-│   │   │   ├── admin/             # Admin management screens
-│   │   │   │   ├── AdminDoctors.jsx     # Doctor CRUD & availability
-│   │   │   │   └── AllAppointments.jsx  # Central consultation registry
-│   │   │   ├── doctor/            # Doctor OPD screens
-│   │   │   │   ├── DoctorAppointments.jsx # Patient appointment roster
-│   │   │   │   └── DoctorSchedule.jsx     # Weekly timetable view
-│   │   │   ├── patient/           # Patient booking screens
-│   │   │   │   ├── FindDoctors.jsx      # Doctor search & department filter
-│   │   │   │   ├── DoctorProfile.jsx    # Doctor profile & date/slot picker
-│   │   │   │   └── MyAppointments.jsx   # Consultation history & cancel
-│   │   │   ├── AdminDashboard.jsx
-│   │   │   ├── DoctorDashboard.jsx
-│   │   │   ├── PatientDashboard.jsx
-│   │   │   ├── LandingPage.jsx
-│   │   │   ├── SignIn.jsx
-│   │   │   └── SignUp.jsx
-│   │   └── App.jsx                # Application routes & toaster provider
-│   └── package.json
-│
-├── server/
-│   ├── config/
-│   │   ├── db.js                  # Mongoose MongoDB connection
-│   │   └── firebaseAdmin.js       # Firebase Admin initialization
-│   ├── controllers/
-│   │   ├── appointmentController.js # Booking, status updates, cancellation
-│   │   ├── authController.js        # User registration & claims
-│   │   └── doctorController.js      # Doctor CRUD & schedule queries
-│   ├── middleware/
-│   │   ├── auth.js                # Token verification & checkRole
-│   │   ├── errorHandler.js        # Centralized error shape & status mapping
-│   │   └── validate.js            # Zod request validation middleware
-│   ├── models/
-│   │   ├── Appointment.js         # Unique compound index schema
-│   │   ├── Doctor.js              # Doctor & weekly template schemas
-│   │   └── User.js                # User RBAC document schema
-│   ├── routes/
-│   │   ├── appointmentRoutes.js
-│   │   ├── authRoutes.js
-│   │   └── doctorRoutes.js
-│   ├── scripts/
-│   │   ├── createAdmin.js         # Admin provisioning script
-│   │   └── seed.js                # Interactive database seeder
-│   ├── server.js                  # Express application entry point
-│   └── package.json
-│
-└── README.md
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_FIREBASE_API_KEY=AIzaSyAa_RQue1ST_PB2hehM-Cy3q4QGg5C4A7o
+VITE_FIREBASE_AUTH_DOMAIN=powerful-rock-8pp0d.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=powerful-rock-8pp0d
+VITE_FIREBASE_STORAGE_BUCKET=powerful-rock-8pp0d.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=938492421110
+VITE_FIREBASE_APP_ID=1:938492421110:web:16f05282a0435d31f3ddd7
 ```
-
----
-
-## 🔒 Security & Concurrency Design
-
-- **Compound Unique Index:** `appointmentSchema.index({ doctorRef: 1, appointmentDate: 1, time: 1 }, { unique: true })` guarantees that duplicate slot booking attempts are rejected at the database engine level with standard MongoDB `E11000` errors.
-- **State Transition Guard:** Doctor appointment status updates enforce legal transitions (`pending` &rarr; `confirmed` &rarr; `completed` / `cancelled`), preventing invalid state changes.
-- **Role Verification:** All administrative and clinical routes verify both the client's decoded Firebase token and their verified database document role before granting execution.
