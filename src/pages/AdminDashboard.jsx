@@ -183,7 +183,7 @@ export default function AdminDashboard() {
 
           {/* 3. Today's Appointments */}
           <Link
-            to="/admin/appointments"
+            to="/admin/appointments?date=today"
             id="stat-today-appointments"
             className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-blue-300 transition-colors group"
           >

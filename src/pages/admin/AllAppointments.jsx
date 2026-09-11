@@ -40,13 +40,19 @@ const DATE_RANGES = [
 export default function AllAppointments() {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlStatus = searchParams.get('status');
+  const urlDate = searchParams.get('date');
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState(urlStatus || 'All');
-  const [dateRangePreset, setDateRangePreset] = useState('all');
+  const [dateRangePreset, setDateRangePreset] = useState(urlDate || 'all');
   const [customDate, setCustomDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [updatingId, setUpdatingId] = useState(null);
+
+  useEffect(() => {
+    if (urlStatus) setStatusFilter(urlStatus);
+    if (urlDate) setDateRangePreset(urlDate);
+  }, [urlStatus, urlDate]);
 
   const handleStatusChange = async (appointmentId, newStatus) => {
     try {

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getMyAppointments } from '../api/appointmentApi';
+import { getDoctors } from '../api/doctorApi';
 import {
   subscribePatientAppointments,
   bookAppointmentInFirestore,
@@ -34,6 +35,8 @@ export const PatientDashboard = () => {
   const [activeTab, setActiveTab] = useState('appointments'); // 'appointments' | 'book' | 'profile'
   const [appointments, setAppointments] = useState([]);
   const [loadingAppts, setLoadingAppts] = useState(true);
+  const [doctorsList, setDoctorsList] = useState([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(true);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState('');
   const [bookingSuccess, setBookingSuccess] = useState('');
@@ -46,7 +49,13 @@ export const PatientDashboard = () => {
     notes: '',
   });
 
-  const patientName = userProfile?.name || currentUser?.displayName || 'Patient';
+  const rawName = userProfile?.name || currentUser?.displayName || '';
+  const patientName =
+    rawName && rawName.trim().toLowerCase() !== 'user'
+      ? rawName
+      : currentUser?.email && !currentUser.email.startsWith('patient@')
+      ? currentUser.email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+      : 'Patient';
   const patientEmail = userProfile?.email || currentUser?.email || 'patient@sanjeevani-hospital.in';
   const patientPhone = userProfile?.phone || '+91 98765 43210';
 
@@ -77,6 +86,15 @@ export const PatientDashboard = () => {
 
   useEffect(() => {
     loadAppointments();
+
+    getDoctors()
+      .then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          setDoctorsList(res.data);
+        }
+      })
+      .catch((err) => console.warn('Could not fetch doctors in PatientDashboard:', err))
+      .finally(() => setLoadingDoctors(false));
 
     const currentUid = currentUser?.uid || userProfile?.firebaseUID;
     if (currentUid) {
@@ -203,19 +221,21 @@ export const PatientDashboard = () => {
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Super-Specialists
+                Specialist Doctors
               </span>
               <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
                 <Stethoscope className="w-4 h-4" />
               </div>
             </div>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-2xl font-bold text-slate-900">50+</span>
+              <span className="text-2xl font-bold text-slate-900">
+                {loadingDoctors ? '...' : doctorsList.length}
+              </span>
               <Link
                 to="/patient/doctors"
                 className="text-xs font-semibold text-teal-700 hover:underline"
               >
-                Browse OPD &rarr;
+                Browse OPD ({loadingDoctors ? '...' : doctorsList.length}) &rarr;
               </Link>
             </div>
           </div>

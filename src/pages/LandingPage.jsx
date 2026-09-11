@@ -427,8 +427,8 @@ export default function LandingPage() {
                     <div className="text-xs text-slate-500 font-medium mt-0.5">Hospital Beds & ICUs</div>
                   </div>
                   <div>
-                    <div className="text-2xl sm:text-3xl font-black text-slate-900">50+</div>
-                    <div className="text-xs text-slate-500 font-medium mt-0.5">Senior Faculty Doctors</div>
+                    <div className="text-2xl sm:text-3xl font-black text-slate-900">6+</div>
+                    <div className="text-xs text-slate-500 font-medium mt-0.5">Specialist Departments</div>
                   </div>
                   <div>
                     <div className="text-2xl sm:text-3xl font-black text-slate-900">99.4%</div>
