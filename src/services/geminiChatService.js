@@ -2,9 +2,12 @@
 // Powered by Google Gemini AI with multi-turn symptom triage,
 // dynamic medicine intelligence, side effects analysis, and hospital doctor matching.
 
-const GEMINI_ENDPOINTS = [
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent',
+// Use known stable Gemini model names. The API key goes as query param only
+// (adding it as a header triggers CORS preflight and fails in browsers).
+const GEMINI_MODELS = [
+  'gemini-2.0-flash',
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-8b',
 ];
 
 /**
@@ -159,7 +162,14 @@ export async function sendGeminiChatMessage({
   const detectedMed = extractPotentialMedicine(userMessage);
   let liveSearchData = null;
   if (detectedMed) {
-    liveSearchData = await fetchLiveMedicineSearch(detectedMed);
+    try {
+      liveSearchData = await Promise.race([
+        fetchLiveMedicineSearch(detectedMed),
+        new Promise((r) => setTimeout(() => r(null), 1500)),
+      ]);
+    } catch {
+      liveSearchData = null;
+    }
   }
 
   // Build Gemini contents array
@@ -198,28 +208,50 @@ export async function sendGeminiChatMessage({
     parts: [{ text: userMessage }],
   });
 
-  // Try Gemini endpoints (gemini-flash-latest, then gemini-flash-lite-latest)
-  for (const endpoint of GEMINI_ENDPOINTS) {
+  // Early exit if no API key is configured
+  if (!apiKey) {
+    console.warn('No Gemini API key configured. Using fallback.');
+    return generateClinicalFallback(userMessage, liveDoctors, liveSearchData);
+  }
+
+  // Try each Gemini model in order
+  for (const model of GEMINI_MODELS) {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+      // IMPORTANT: Only use ?key= query param, NOT X-goog-api-key header.
+      // The header causes a CORS preflight which browsers block.
       const response = await fetch(`${endpoint}?key=${encodeURIComponent(apiKey)}`, {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
-          'X-goog-api-key': apiKey,
         },
         body: JSON.stringify({
           contents,
           generationConfig: {
             temperature: 0.7,
             topP: 0.95,
-            maxOutputTokens: 1000,
+            maxOutputTokens: 1024,
           },
         }),
       });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        console.warn(`Gemini model ${model} returned ${response.status}:`, errData?.error?.message || '');
+        // 429 = quota exceeded, 503 = overloaded → try next model
+        // 400/403 = bad request or API key problem → don't retry
+        if (response.status === 400 || response.status === 403) break;
+        continue;
+      }
 
       const data = await response.json();
 
-      if (response.ok && data?.candidates?.[0]?.content?.parts) {
+      if (data?.candidates?.[0]?.content?.parts) {
         const parts = data.candidates[0].content.parts;
         const textParts = parts.map((p) => p.text).filter(Boolean);
         const geminiResponseText = textParts.join('\n').trim();
@@ -246,11 +278,13 @@ export async function sendGeminiChatMessage({
             suggestedQueries,
           };
         }
-      } else {
-        console.warn(`Gemini endpoint ${endpoint} returned:`, data?.error?.message || data);
       }
     } catch (err) {
-      console.warn(`Failed to connect to ${endpoint}:`, err);
+      if (err.name === 'AbortError') {
+        console.warn(`Gemini model ${model} timed out. Trying next...`);
+      } else {
+        console.warn(`Failed to connect to ${model}:`, err);
+      }
     }
   }
 
