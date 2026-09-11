@@ -12,7 +12,7 @@ import toast from 'react-hot-toast';
 import Loader from '../../components/Loader';
 import EmptyState from '../../components/EmptyState';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import Navbar from '../../components/Navbar';
+
 import {
   Users,
   Calendar,
@@ -317,7 +317,6 @@ export default function AdminDoctors() {
 
   return (
     <div id="admin-doctors-container" className="min-h-screen bg-slate-50 text-slate-800">
-      <Navbar />
 
       {/* Indian Hospital Top Bar / Localization Header for Admin */}
       <div id="admin-hospital-banner" className="bg-slate-900 text-slate-200 border-b border-slate-800 text-xs py-2 px-4 sm:px-8">

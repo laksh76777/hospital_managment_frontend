@@ -143,6 +143,17 @@ export default function Navbar() {
               {currentUser && role === 'admin' && (
                 <>
                   <Link
+                    to="/admin/patients"
+                    className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1 ${
+                      location.pathname.startsWith('/admin/patients')
+                        ? 'bg-indigo-50 text-indigo-700 font-bold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span>Patients</span>
+                    <span className="text-[10px] bg-indigo-100 text-indigo-800 px-1 rounded font-mono">🔒</span>
+                  </Link>
+                  <Link
                     to="/admin/doctors"
                     className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                       location.pathname.startsWith('/admin/doctors')
@@ -366,6 +377,13 @@ export default function Navbar() {
           )}
           {currentUser && role === 'admin' && (
             <>
+              <Link
+                to="/admin/patients"
+                className="block px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 flex items-center justify-between"
+              >
+                <span>Registered Patients Directory</span>
+                <span className="text-[10px] bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded font-mono">🔒 laksh97</span>
+              </Link>
               <Link
                 to="/admin/doctors"
                 className="block px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100"

@@ -4,7 +4,7 @@ import { getAllAppointments, updateAppointmentStatus } from '../../api/appointme
 import AppointmentStatusBadge from '../../components/AppointmentStatusBadge';
 import Loader from '../../components/Loader';
 import EmptyState from '../../components/EmptyState';
-import Navbar from '../../components/Navbar';
+
 import toast from 'react-hot-toast';
 import { format, startOfDay, endOfDay, addDays } from 'date-fns';
 import {
@@ -117,7 +117,6 @@ export default function AllAppointments() {
 
   return (
     <div id="admin-all-appointments-container" className="min-h-screen bg-slate-50 text-slate-800">
-      <Navbar />
 
       {/* Indian Hospital Header */}
       <div className="bg-gradient-to-r from-emerald-800 via-teal-900 to-indigo-950 text-white text-xs py-2.5 px-4 border-b border-emerald-700/50">

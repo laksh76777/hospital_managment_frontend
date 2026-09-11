@@ -88,6 +88,7 @@ frontend/
 | `/patient/dashboard` | Protected (Patient) | Patient dashboard with upcoming visits and profile details |
 | `/patient/my-appointments`| Protected (Patient) | Patient's personal consultation registry |
 | `/admin/dashboard` | Protected (Admin) | Admin Overview with live stats and **Pending Approvals Queue** |
+| `/admin/patients` | Protected (Admin + Passkey `laksh97`) | **Registered Patients Directory** with search, filters, dossiers, and CSV export |
 | `/admin/doctors` | Protected (Admin) | Onboard new doctors, assign department, configure weekly slots |
 | `/admin/appointments`| Protected (Admin) | Hospital-wide consultation records with **Admin Approval Actions** |
 

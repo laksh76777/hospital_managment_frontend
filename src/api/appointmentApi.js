@@ -74,6 +74,22 @@ export const getAdminStats = async () => {
   return response.data;
 };
 
+/**
+ * Get registered patients directory (Admin - Requires passkey 'laksh97')
+ * @param {string} passkey - Passkey for access (laksh97)
+ */
+export const getAdminPatients = async (passkey = '') => {
+  const response = await api.get('/admin/patients', {
+    headers: {
+      'x-admin-passkey': passkey,
+    },
+    params: {
+      passkey,
+    },
+  });
+  return response.data;
+};
+
 export default {
   bookAppointment,
   getMyAppointments,
@@ -82,4 +98,6 @@ export default {
   updateAppointmentStatus,
   getAllAppointments,
   getAdminStats,
+  getAdminPatients,
 };
+

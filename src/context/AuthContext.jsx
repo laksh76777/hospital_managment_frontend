@@ -23,30 +23,23 @@ export const AuthProvider = ({ children }) => {
       return null;
     }
   });
-  const [loading, setLoading] = useState(true);
+  // Start loading=false if we have a cached profile — instant render for returning users
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !localStorage.getItem('healthdesk_profile');
+    } catch {
+      return true;
+    }
+  });
   const [authError, setAuthError] = useState(null);
 
-  // Sync user profile with our backend API and Firestore
-  const fetchBackendProfile = async (firebaseUser, token) => {
+  // Sync user profile with our backend API and Firestore (runs in background)
+  const fetchBackendProfile = async (firebaseUser) => {
     const emailLower = (firebaseUser.email || '').trim().toLowerCase();
     const isOwnerEmail = emailLower === 'abc@gmail.com';
     let profileData = null;
 
-    // 1. Check Firestore profile
-    try {
-      const fsProfile = await getUserProfileFromFirestore(firebaseUser.uid);
-      if (fsProfile) {
-        profileData = {
-          ...fsProfile,
-          firebaseUID: firebaseUser.uid,
-          role: isOwnerEmail ? 'admin' : (fsProfile.role || 'patient'),
-        };
-      }
-    } catch (fsErr) {
-      console.warn('[AuthContext] Firestore profile fetch note:', fsErr);
-    }
-
-    // 2. Fetch from backend API using authApi
+    // 1. Attempt backend API first (fastest and most authoritative)
     try {
       const data = await authApi.getMe();
       if (data && data.success && (data.data || data.user)) {
@@ -57,10 +50,26 @@ export const AuthProvider = ({ children }) => {
         };
       }
     } catch (err) {
-      console.warn('[AuthContext] Backend profile fetch warning via authApi:', err.message);
+      console.warn('[AuthContext] Backend profile fetch note:', err.message);
     }
 
-    // 3. Fallback profile
+    // 2. Fallback to Firestore
+    if (!profileData) {
+      try {
+        const fsProfile = await getUserProfileFromFirestore(firebaseUser.uid);
+        if (fsProfile) {
+          profileData = {
+            ...fsProfile,
+            firebaseUID: firebaseUser.uid,
+            role: isOwnerEmail ? 'admin' : (fsProfile.role || 'patient'),
+          };
+        }
+      } catch (fsErr) {
+        console.warn('[AuthContext] Firestore profile fetch note:', fsErr);
+      }
+    }
+
+    // 3. Fallback profile from Firebase user object
     if (!profileData) {
       profileData = {
         firebaseUID: firebaseUser.uid,
@@ -73,7 +82,7 @@ export const AuthProvider = ({ children }) => {
     setUserProfile(profileData);
     localStorage.setItem('healthdesk_profile', JSON.stringify(profileData));
 
-    // Ensure Firestore profile record is updated in the background
+    // Background Firestore sync
     syncUserProfileToFirestore({
       uid: firebaseUser.uid,
       name: profileData.name,
@@ -87,24 +96,25 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (isFirebaseConfigured && auth) {
-      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
         setCurrentUser(firebaseUser);
         if (firebaseUser) {
-          try {
-            await fetchBackendProfile(firebaseUser);
-          } catch (e) {
-            console.error('[AuthContext] Error fetching profile on auth change:', e);
-          }
+          // Refresh profile in background — UI doesn't wait for this
+          fetchBackendProfile(firebaseUser).catch((e) => {
+            console.warn('[AuthContext] Background profile refresh note:', e);
+          });
         } else {
+          // User signed out — clear state
           setUserProfile(null);
           localStorage.removeItem('healthdesk_profile');
         }
+        // Unlock loading as soon as Firebase resolves auth state (fast, ~100-300ms)
         setLoading(false);
       });
 
       return () => unsubscribe();
     } else {
-      // In dev environment when Firebase credentials aren't yet populated
+      // Dev environment fallback
       const savedDevProfile = localStorage.getItem('healthdesk_profile');
       if (savedDevProfile) {
         try {

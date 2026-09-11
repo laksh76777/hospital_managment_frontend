@@ -17,6 +17,7 @@ import AppointmentBookingPage from './pages/AppointmentBookingPage';
 // Doctor & Patient Management Pages
 import AdminDoctors from './pages/admin/AdminDoctors';
 import AllAppointments from './pages/admin/AllAppointments';
+import ManagePatients from './pages/admin/ManagePatients';
 import FindDoctors from './pages/patient/FindDoctors';
 import DoctorProfile from './pages/patient/DoctorProfile';
 import MyAppointments from './pages/patient/MyAppointments';
@@ -89,6 +90,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/patients"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <ManagePatients />
               </ProtectedRoute>
             }
           />
